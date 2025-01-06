@@ -9,7 +9,7 @@ let client = restify.createJsonClient({
 
 /* GET users listing. */
 router.get('/', function(request, response, next) {
-  client.get('/users', function(error, clientRequest, clientResponse, obj) {
+  client.get('/users', (error, clientRequest, clientResponse, obj) => {
     assert.ifError(error);
     response.end(JSON.stringify(obj, null, 2));
   });
