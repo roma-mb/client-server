@@ -1,10 +1,15 @@
-class UserController {
+import Utils from "../helpers/Utils.js";
+import Http from "../helpers/Http.js";
+import User from "../models/User.js";
+
+export default class UserController {
   constructor(formId, formUpdateId, tableBodyId) {
     this._photo = "";
     this.form = document.getElementById(formId);
     this.editForm = document.getElementById(formUpdateId);
     this.tableBody = document.getElementById(tableBodyId);
     this.currentTableRow = "";
+    this.xmlHttpRequest = new Http();
 
     this.submitFormEvent();
     this.editFormEvent();
@@ -233,46 +238,26 @@ class UserController {
   }
 
   fillUsersBySessionStorage() {
+    this.xmlHttpRequest.get('/users').then((data) => {
 
-    // let request = new XMLHttpRequest();
+      let te = User.parseFromJson(data);
+      console.log(te);
 
-    // request.onload = (event) => {
-    //   const arraybuffer = request.response;
-    //   console.log(request.response);
-    // }
-
-    // request.addEventListener('load', (event) => {
-    //   console.log(request.response);
-    // })
-
-    // request.open('GET', '/userstest');
-    // request.send();
-
-  
-    pro.then((success) => {
-      console.log(success);
+      // data.forEach((user) => {
+      //   // this.appendUser(document.createElement("tr"), user);
+      // });
     }).catch((error) => {
       console.log(error);
     });
 
-    // let promret =  new Promise((resolve, reject) => {
-    //     if(success) {
-    //         resolve('{error: "error"}');
-    //     }
-    // });
-
-
-    // console.log(response);
-
-    // console.log(promret);
-
-
+    // console.log(Http.get('fdgdf'));
 
     // User.selectAllBySessionStorage().forEach((user) => {
+    //   console.log(user);
     //   user._register = new Date(user._register);
     //   this.appendUser(document.createElement("tr"), user);
     // });
 
-    // this.appendStatistic();
+    this.appendStatistic();
   }
 }

@@ -1,37 +1,30 @@
-let xmlRequest = new XMLHttpRequest();
+export default class Http {
+  #xmlRequest;
 
-xmlRequest.addEventListener('load', (event) => {
-  console.log(request.response);
-})
+  constructor() {
+    this.#xmlRequest = new XMLHttpRequest();
+  }
 
-request.open('GET', '/userstest');
-request.send();
-
-function onLoad() {
-    
-}
-
-function get(url) {
-    let promise = new Promise((resolve, reject) => {
-      xmlRequest.onload = () => {
-        const done = xmlRequest.readyState === XMLHttpRequest.DONE;
-        const status = xmlRequest.status;
+  get(url) {
+    let response = new Promise((resolve, reject) => {
+      this.#xmlRequest.onload = () => {
+        const done = this.#xmlRequest.readyState === XMLHttpRequest.DONE;
+        const status = this.#xmlRequest.status;
         const success = done && (status >= 200 && status < 400); 
+        const jsonResponse = this.#xmlRequest.responseText;
   
         if(success) {
-          return resolve('{test: "foi"}');
+          return resolve(jsonResponse);
         }
 
-        reject('{error: "error"}');
+        reject(jsonResponse);
       }
     });
 
-    xmlRequest.open('GET', url, true);
+    this.#xmlRequest.open('GET', url, true);
 
-    xmlRequest.send();
-}
+    this.#xmlRequest.send();
 
-
-module.exports {
-
+    return response;
+  }
 }

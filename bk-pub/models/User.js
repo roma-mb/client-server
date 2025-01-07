@@ -1,4 +1,4 @@
-class User {
+export default class User {
   constructor(id, name, gender, birth, country, email, password, photo, admin) {
     this._id = id;
     this._name = name;
@@ -79,7 +79,7 @@ class User {
     return users ? JSON.parse(users) : [];
   }
 
-  save() {
+  static save() {
     let isNewUser = true;
 
     let users = User.selectAllBySessionStorage().map((user) => {
@@ -99,7 +99,7 @@ class User {
     localStorage.setItem("users", JSON.stringify(users));
   }
 
-  delete() {
+  static delete() {
     let users = User.selectAllBySessionStorage();
 
     users.forEach((value, index) => {
@@ -111,7 +111,7 @@ class User {
     localStorage.setItem("users", JSON.stringify(users));
   }
 
-  loadFromJSON(user) {
+  static loadFromJSON(user) {
     let parsedUser = JSON.parse(user);
 
     for (let index in parsedUser) {
@@ -119,5 +119,13 @@ class User {
     }
 
     return this;
+  }
+
+  static parseFromJson(data) {
+    const parsedUser = JSON.parse(data);
+
+    parsedUser.forEach((data, index) => {
+      console.log(data);
+    });
   }
 }

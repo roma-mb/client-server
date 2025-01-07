@@ -1,4 +1,4 @@
-class Utils {
+export default class Utils {
   static formatDate(date, format) {
     let formatSplited = format.split(" ");
     let dateFormat = formatSplited[0] ?? "";
