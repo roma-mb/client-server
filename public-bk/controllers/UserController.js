@@ -7,10 +7,8 @@ export default class UserController {
     this._photo = "";
     this.form = document.getElementById(formId);
     this.editForm = document.getElementById(formUpdateId);
-    // 'table-tbody-user'
     this.tableBody = document.getElementById(tableBodyId);
     this.currentTableRow = "";
-    this.xmlHttpRequest = new Http();
 
     this.submitFormEvent();
     this.editFormEvent();
@@ -27,8 +25,11 @@ export default class UserController {
       this.getUrlPhoto().then(
         (content) => {
           userData.photo = content;
-          this.appendUser(document.createElement("tr"), userData);
-          userData.save();
+
+          userData.save().then(data => {
+            this.appendUser(document.createElement("tr"), JSON.parse(data));
+          }).catch(error => console.log(error));
+          
           this.appendStatistic();
         },
         (error) => {
@@ -45,17 +46,18 @@ export default class UserController {
       event.preventDefault();
 
       let userData = this.getUserData(this.editForm);
-      console.log(userData);
       let oldUser = JSON.parse(this.currentTableRow.dataset.user);
       // userData = Object.assign({}, oldUser, userData);
       userData.register = new Date();
 
       this.getUrlPhoto().then(
         (content) => {
-          userData._photo =
-            userData._photo.length > 0 ? content : oldUser._photo;
-          this.appendUser(this.currentTableRow, userData, true);
-          userData.save();
+          userData._photo = userData._photo.length > 0 ? content : oldUser._photo;
+
+          userData.save().then(data => {
+            this.appendUser(this.currentTableRow, JSON.parse(data), true);
+          }).catch(error => console.log(error));
+
           this.appendStatistic();
         },
         (error) => {
@@ -241,7 +243,7 @@ export default class UserController {
   }
 
   fillUsersBySessionStorage() {
-    this.xmlHttpRequest.get('/users').then((response) => {
+    Http.get('/users').then((response) => {
       let data = JSON.parse(response);
 
       data.forEach((user) => {

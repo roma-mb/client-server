@@ -1,3 +1,5 @@
+import Http from "../helpers/Http.js";
+
 export default class User {
   constructor(id, name, gender, birth, country, email, password, photo, admin) {
     this._id = id;
@@ -79,7 +81,7 @@ export default class User {
     return users ? JSON.parse(users) : [];
   }
 
-  save() {
+  saveLocalStorage() {
     let isNewUser = true;
 
     let users = User.selectAllBySessionStorage().map((user) => {
@@ -99,7 +101,17 @@ export default class User {
     localStorage.setItem("users", JSON.stringify(users));
   }
 
-  static delete() {
+  save() {
+    const payload = this.toJson();
+
+    if(this.id) {
+      return Http.put(`/users/${this.id}`, payload)
+    }
+
+    return Http.post('/users', payload);
+  }
+
+  static deleteLocalStorage() {
     let users = User.selectAllBySessionStorage();
 
     users.forEach((value, index) => {
@@ -115,10 +127,19 @@ export default class User {
     let parsedUser = JSON.parse(user);
 
     for (let index in parsedUser) {
-      console.log(index);
       this[index] = parsedUser[index];
     }
 
     return this;
+  }
+
+  toJson() {
+    let user = {};
+
+    for(let attribute in this) {
+      user[attribute] = this[attribute];
+    }
+
+    return JSON.stringify(user);
   }
 }

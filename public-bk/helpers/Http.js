@@ -1,17 +1,26 @@
 export default class Http {
-  #xmlRequest;
 
-  constructor() {
-    this.#xmlRequest = new XMLHttpRequest();
+  static get(url) {
+    return Http.request('GET', url);
   }
 
-  get(url) {
+  static post(url, payload) {
+    return Http.request('POST', url, payload);
+  }
+
+  static put(url, payload) {
+    return Http.request('PUT', url, payload);
+  }
+
+  static request(method = 'GET', url = '', payload = {}) {
+    let request = new XMLHttpRequest();
+
     let response = new Promise((resolve, reject) => {
-      this.#xmlRequest.onload = () => {
-        const done = this.#xmlRequest.readyState === XMLHttpRequest.DONE;
-        const status = this.#xmlRequest.status;
+      request.onload = () => {
+        const done = request.readyState === XMLHttpRequest.DONE;
+        const status = request.status;
         const success = done && (status >= 200 && status < 400); 
-        const jsonResponse = this.#xmlRequest.responseText;
+        const jsonResponse = request.responseText;
   
         if(success) {
           return resolve(jsonResponse);
@@ -21,9 +30,13 @@ export default class Http {
       }
     });
 
-    this.#xmlRequest.open('GET', url, true);
+    request.open(method.toUpperCase(), url, true);
 
-    this.#xmlRequest.send();
+    if(method === 'POST' || method === 'PUT') {
+      request.setRequestHeader('Content-Type', 'application/json');
+    }
+
+    request.send(payload);
 
     return response;
   }

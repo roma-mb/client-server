@@ -8,10 +8,35 @@ let client = restify.createJsonClient({
 });
 
 /* GET users listing. */
-router.get('/', function(request, response, next) {
-  client.get('/users', (error, clientRequest, clientResponse, obj) => {
+router.get('/', (request, response, next) => {
+  client.get('/users', (error, clientRequest, clientResponse, object) => {
     assert.ifError(error);
-    response.end(JSON.stringify(obj, null, 2));
+
+    response.json(object);
+  });
+});
+
+router.post('/', (request, response, next) => {
+  client.post('/users', request.body, (error, clientRequest, clientResponse, object) => {
+    assert.ifError(error);
+
+    response.json(object);
+  });
+});
+
+router.put('/:id', (request, response, next) => {
+  client.put(`/user/${request.params.id}`, request.body, (error, clientRequest, clientResponse, object) => {
+    assert.ifError(error);
+    
+    response.json(object);
+  });
+});
+
+router.delete('/:id', (request, response, next) => {
+  client.delete(`/user/${request.params.id}`, (error, clientRequest, clientResponse, object) => {
+    assert.ifError(error);
+
+    response.json(object);
   });
 });
 
