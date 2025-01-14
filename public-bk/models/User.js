@@ -66,19 +66,19 @@ export default class User {
     return (this._register = value);
   }
 
-  incrementID() {
+  selectAllBySessionStorage() {
+    let users = localStorage.getItem("users");
+
+    return users ? JSON.parse(users) : [];
+  }
+
+  incrementIdLocalStorage() {
     let lastId = ~~localStorage.getItem("lastId");
     let id = lastId + 1;
 
     localStorage.setItem("lastId", id);
 
     this._id = id;
-  }
-
-  static selectAllBySessionStorage() {
-    let users = localStorage.getItem("users");
-
-    return users ? JSON.parse(users) : [];
   }
 
   saveLocalStorage() {
@@ -94,9 +94,21 @@ export default class User {
     });
 
     if (isNewUser) {
-      this.incrementID();
+      this.incrementIdLocalStorage();
       users.push(this);
     }
+
+    localStorage.setItem("users", JSON.stringify(users));
+  }
+
+  deleteLocalStorage() {
+    let users = User.selectAllBySessionStorage();
+
+    users.forEach((value, index) => {
+      if (value._id === this.id) {
+        users.splice(index, 1);
+      }
+    });
 
     localStorage.setItem("users", JSON.stringify(users));
   }
@@ -111,23 +123,15 @@ export default class User {
     return Http.post('/users', payload);
   }
 
-  static deleteLocalStorage() {
-    let users = User.selectAllBySessionStorage();
-
-    users.forEach((value, index) => {
-      if (value._id === this.id) {
-        users.splice(index, 1);
-      }
-    });
-
-    localStorage.setItem("users", JSON.stringify(users));
-  }
-
   delete() {
     return Http.delete(`/users/${this.id}`);
   }
 
-  static loadFromJSON(user) {
+  findAll() {
+    return Http.get('/users');
+  }
+
+  loadFromJSON(user) {
     let parsedUser = JSON.parse(user);
 
     for (let index in parsedUser) {

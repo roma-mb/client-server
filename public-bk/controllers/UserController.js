@@ -1,5 +1,4 @@
 import Utils from "../helpers/Utils.js";
-import Http from "../helpers/Http.js";
 import User from "../models/User.js";
 
 export default class UserController {
@@ -9,33 +8,37 @@ export default class UserController {
     this.editForm = document.getElementById(formUpdateId);
     this.tableBody = document.getElementById(tableBodyId);
     this.currentTableRow = "";
+    this.user = new User();
 
     this.submitFormEvent();
     this.editFormEvent();
-    this.fillUsersBySessionStorage();
+    this.fillUsers();
   }
 
   submitFormEvent() {
     this.form.addEventListener("submit", (event) => {
       event.preventDefault();
+
       let userData = this.getUserData(this.form);
 
       if (Utils.isEmpty(userData)) return;
 
-      this.getUrlPhoto().then(
-        (content) => {
-          userData.photo = content;
-
-          userData.save().then(data => {
-            this.appendUser(document.createElement("tr"), JSON.parse(data));
-          }).catch(error => console.log(error));
-          
-          this.appendStatistic();
-        },
-        (error) => {
-          console.error(error);
+      this.getUrlPhoto((error, result) => {
+        if(error) {
+          alert(`Upload photo error: ${error}`);
+          return;
         }
-      );
+
+        userData.photo = result;
+
+        userData.save().then(data => {
+          this.appendUser(document.createElement("tr"), JSON.parse(data));
+        }).catch(error => {
+          console.log(error);
+        });
+        
+        this.appendStatistic();
+      });
 
       this.form.reset();
     });
@@ -50,21 +53,22 @@ export default class UserController {
       // userData = Object.assign({}, oldUser, userData);
       userData.register = new Date();
 
-      this.getUrlPhoto().then(
-        (content) => {
-          userData._photo = userData._photo.length > 0 ? content : oldUser._photo;
-
-          userData.save().then(data => {
-            this.appendUser(this.currentTableRow, JSON.parse(data), true);
-          }).catch(error => console.log(error));
-
-          this.appendStatistic();
-        },
-        (error) => {
-          console.error(error);
+      this.getUrlPhoto((error, result) => {
+        if(error) {
+          alert(`Upload photo error: ${error}`);
+          return;
         }
-      );
 
+        userData._photo = userData._photo.length > 0 ? result : oldUser._photo;
+
+        userData.save().then(data => {
+          this.appendUser(this.currentTableRow, JSON.parse(data), true);
+        }).catch(error => {
+          console.log(error);
+        });
+      });
+
+      this.appendStatistic();
       this.editForm.reset();
       this.showForms({ edit: "none" });
     });
@@ -119,7 +123,20 @@ export default class UserController {
     );
   }
 
-  getUrlPhoto() {
+  getUrlPhoto(callback) {
+    let fileRead = new FileReader();
+    let file = this._photo.files[0];
+
+    if (!file) {
+      return callback(null, 'dist/img/boxed-bg.jpg');
+    }
+
+    fileRead.readAsDataURL(file);
+    fileRead.onload = () => callback(null, fileRead.result);
+    fileRead.onerror = (error) => callback(error, null);
+  }
+
+  getPhoto() {
     let fileRead = new FileReader();
     let file = this._photo.files[0];
 
@@ -184,7 +201,7 @@ export default class UserController {
       .querySelector(".btn-exclude")
       .addEventListener("click", (event) => {
         if (confirm("Do you really want to delete?")) {
-          const user = User.loadFromJSON(tableRow.dataset.user);
+          const user = this.user.loadFromJSON(tableRow.dataset.user);
 
           user.delete().then(data => {
             tableRow.remove();
@@ -244,8 +261,8 @@ export default class UserController {
     return countAdmins;
   }
 
-  fillUsersBySessionStorage() {
-    Http.get('/users').then((response) => {
+  fillUsers() {
+    this.user.findAll().then((response) => {
       let data = JSON.parse(response);
 
       data.forEach((user) => {
