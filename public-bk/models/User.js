@@ -105,7 +105,7 @@ export default class User {
     const payload = this.toJson();
 
     if(this.id) {
-      return Http.put(`/users/${this.id}`, payload)
+      return Http.put(`/users/${this.id}`, payload);
     }
 
     return Http.post('/users', payload);
@@ -121,6 +121,10 @@ export default class User {
     });
 
     localStorage.setItem("users", JSON.stringify(users));
+  }
+
+  delete() {
+    return Http.delete(`/users/${this.id}`);
   }
 
   static loadFromJSON(user) {

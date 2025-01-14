@@ -12,6 +12,10 @@ export default class Http {
     return Http.request('PUT', url, payload);
   }
 
+  static delete(url) {
+    return Http.request('DELETE', url);
+  }
+
   static request(method = 'GET', url = '', payload = {}) {
     let request = new XMLHttpRequest();
 

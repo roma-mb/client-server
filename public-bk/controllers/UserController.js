@@ -184,10 +184,12 @@ export default class UserController {
       .querySelector(".btn-exclude")
       .addEventListener("click", (event) => {
         if (confirm("Do you really want to delete?")) {
-          User.loadFromJSON(tableRow.dataset.user).delete();
+          const user = User.loadFromJSON(tableRow.dataset.user);
 
-          tableRow.remove();
-          this.appendStatistic();
+          user.delete().then(data => {
+            tableRow.remove();
+            this.appendStatistic();
+          }).catch(error => console.warn(error))
         }
       });
   }
