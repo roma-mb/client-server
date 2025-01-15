@@ -1,47 +1,43 @@
 export default class Fetch {
 
   static get(url) {
-    return Http.request('GET', url);
+    return Fetch.request('GET', url);
   }
 
   static post(url, payload) {
-    return Http.request('POST', url, payload);
+    return Fetch.request('POST', url, payload);
   }
 
   static put(url, payload) {
-    return Http.request('PUT', url, payload);
+    return Fetch.request('PUT', url, payload);
   }
 
   static delete(url) {
-    return Http.request('DELETE', url);
+    return Fetch.request('DELETE', url);
   }
 
   static request(method = 'GET', url = '', payload = {}) {
-    let request = new XMLHttpRequest();
+    let request;
+    const hasNoContentType = (method === 'GET' || method === 'DELETE');
 
-    let response = new Promise((resolve, reject) => {
-      request.onload = () => {
-        const done = request.readyState === XMLHttpRequest.DONE;
-        const status = request.status;
-        const success = done && (status >= 200 && status < 400); 
-        const jsonResponse = request.responseText;
-  
-        if(success) {
-          return resolve(jsonResponse);
-        }
-
-        reject(jsonResponse);
-      }
-    });
-
-    request.open(method.toUpperCase(), url, true);
-
-    if(method === 'POST' || method === 'PUT') {
-      request.setRequestHeader('Content-Type', 'application/json');
+    if(hasNoContentType) {
+      request = url;
     }
 
-    request.send(payload);
+    if(!hasNoContentType) {
+      request = new Request(url, {
+        method,
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+      });
+    }
 
-    return response;
+    return new Promise((resolve, reject) => {
+      fetch(url).then(response => {
+        resolve(response.text());
+      }).catch(error => {
+        reject(error);
+      })
+    });
   }
 }

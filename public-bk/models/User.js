@@ -1,4 +1,5 @@
 import Http from "../helpers/Http.js";
+import Fetch from "../helpers/Fetch.js";
 
 export default class User {
   constructor(id, name, gender, birth, country, email, password, photo, admin) {
@@ -128,7 +129,7 @@ export default class User {
   }
 
   findAll() {
-    return Http.get('/users');
+    return Fetch.get('/users');
   }
 
   loadFromJSON(user) {
